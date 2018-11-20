@@ -1,0 +1,11 @@
+name: titanic-notebook
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - jupyter
+  - notebook
+  - pandas
+  - scikit-learn
+  - matplotlib
+  - seaborn
