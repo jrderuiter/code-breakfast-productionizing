@@ -79,4 +79,4 @@ image containing our titanic package.
 
 - Create a Dockerfile that installs the package + it's required dependencies and
   serves a model when the container is started.
-- Think about how we can serve different model using the same image.
+- Think about how we can serve different models using the same image.
