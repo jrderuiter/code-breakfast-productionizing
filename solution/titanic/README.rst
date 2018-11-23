@@ -88,3 +88,12 @@ This image can be run using `docker run` as follows::
     docker run -v /path/to/model_dir:/model -p 5000:5000 titanic
 
 where `/path/to/model_dir` should point to a directory containing a `model.pkl` file.
+
+
+TODO
+----
+
+- Add tests for CLI interface (http://click.palletsprojects.com/en/7.x/testing/)
+- Add tests for web interface (http://flask.pocoo.org/docs/1.0/testing/)
+- Add support for fitting different types of models
+- Improve logging
