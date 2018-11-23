@@ -13,7 +13,7 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = ['Click>=6.0', 'pandas', 'scikit-learn', 'flask']
+requirements = ['Click>=6.0', 'pandas', 'scikit-learn==0.20.0', 'flask']
 
 extra_requirements = {
     "dev": ["bumpversion", "watchdog", "flake8", "tox",

@@ -73,6 +73,18 @@ library `requests`::
     y_hat = pd.read_csv(io.BytesIO(response.content))
     print(y_hat)
 
-Credits
--------
 
+Running the API in Docker
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To facilitate running the Flask API in a Docker container we have also provided a
+(very simple) example Dockerfile. Using this file, you can build a Docker image for
+the API using the following command::
+
+    docker build -t titanic .
+
+This image can be run using `docker run` as follows::
+
+    docker run -v /path/to/model_dir:/model -p 5000:5000 titanic
+
+where `/path/to/model_dir` should point to a directory containing a `model.pkl` file.
