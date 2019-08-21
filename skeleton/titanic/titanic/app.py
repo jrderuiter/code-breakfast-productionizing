@@ -1,21 +1,23 @@
 """Functions for creating the Flask application."""
 
-from flask import Flask, request
+import io
 
-from titanic.model import ModelFit
+import pandas as pd
+from flask import Flask, Response, request
+
+from titanic.model import Model
 
 
 class Scorer(Flask):
     """Flask app for scoring predictions using a given model."""
 
-    # TODO: Add logging?
-
-    def __init__(self, *args, model_path,  **kwargs):
+    def __init__(self, *args, model_path, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self._model = ModelFit.load(model_path)
+        self.add_url_rule("/ping", view_func=self.ping)
 
-        # TODO: Add routes using `add_url_rule`.
+        # TODO: Load model.
+        # TODO: Add /predict route.
 
     def ping(self):
         """Heartbeat endpoint."""
@@ -29,10 +31,12 @@ class Scorer(Flask):
     def predict(self):
         """Predict endpoint, which produces predictions for a given dataset."""
 
-        payload = request.data
-        # assume the payload is the test.csv
-        # `PassengerId,Pclass,Name,Sex,Age,SibSp,Parch,Ticket,Fare,Cabin,Embarked`
-        #
-        # TODO predict the survivors, by including the logic from the model!
+        data = pd.read_csv(io.BytesIO(request.data))
 
-        return 'please make me work!'
+        # TODO: Implement model predictions.
+        y_pred = [1, 1, 1, 1]
+        predictions = pd.DataFrame({"prediction": y_pred})
+
+        return Response(
+            predictions.to_csv(None, header=True, index=False), content_type="text/csv"
+        )

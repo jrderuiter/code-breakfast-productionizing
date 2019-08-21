@@ -7,7 +7,7 @@ import click
 import pandas as pd
 
 from .app import Scorer
-from .model import ModelFit, TitanicRfModel
+from .model import Model, TitanicModel
 
 
 @click.group()
@@ -19,15 +19,16 @@ def cli():
 @cli.command()
 @click.argument("dataset_path")
 @click.option("--output_path", default="model.pkl")
-def fit(dataset_path, output_path):
+@click.option("--label_col", default="Survived")
+def fit(dataset_path, output_path, label_col):
     """Fits the model on a given dataset."""
 
     dataset = pd.read_csv(dataset_path)
 
-    x_train = dataset.drop(['Survived'], axis=1)
-    y_train = dataset['Survived']
+    x_train = dataset.drop([label_col], axis=1)
+    y_train = dataset[label_col]
 
-    model_fit = TitanicRfModel().fit(x_train, y_train)
+    model_fit = TitanicModel().fit(x_train, y_train)
     model_fit.save(output_path)
 
 
@@ -40,11 +41,8 @@ def predict(model_path, dataset_path, output_path):
 
     dataset = pd.read_csv(dataset_path)
 
-    # Drop labels if present, as we don't need these for prediction.
-    x_predict = dataset.drop(['Survived'], axis=1, errors="ignore")
-
-    model_fit = ModelFit.load(model_path)
-    y_hat = model_fit.predict(x_predict)
+    model = Model.load(model_path)
+    y_hat = model.predict(dataset)
 
     y_hat_df = pd.DataFrame({"predictions": y_hat})
     y_hat_df.to_csv(output_path, index=False)

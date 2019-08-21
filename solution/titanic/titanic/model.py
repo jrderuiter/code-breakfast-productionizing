@@ -2,14 +2,13 @@
 
 """Classes for creating and persisting (fitted) ML models."""
 
-from sklearn import metrics
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.externals import joblib
-from sklearn.pipeline import Pipeline
-from sklearn.model_selection import GridSearchCV
-import numpy as np
+import joblib
 
-from . import features
+from sklearn.compose import ColumnTransformer
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.impute import SimpleImputer
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import OneHotEncoder
 
 
 class Model:
@@ -21,49 +20,33 @@ class Model:
     a read-only model fit that can be used to perform predictions and can be persisted.
     """
 
-    def fit(self, x_train, y_train) -> "ModelFit":
-        """Fits model on given dataset.
+    def fit(self, X, y):
+        """
+        Fits model on given dataset.
 
         Parameters
         ----------
-        x_train : pd.Dataframe
+        X : pd.Dataframe
             Dataframe containing training data (features only, no response).
-        y_train : Union[pd.Series, np.ndarray]
+        y : Union[pd.Series, np.ndarray]
             Pandas series (or numpy array) containing the response values for the
             given training dataset.
 
         Returns
         -------
-        ModelFit
-            A trained model instance.
-
+        Model
+            Returns the model itself, after fitting.
         """
-        raise NotImplementedError()
+        return self
 
-
-class ModelFit:
-    """Basic class representing a trained model (a model fit).
-
-    Model fits are in principle read-only and should not be modified after training.
-    As such, instances represent trained 'snapshots' of the model that can be persisted
-    to disk and loaded as needed for performing predictions. Optionally, model fits
-    can store extra metadata/parameters to indicate how/when the model was trained.
-    """
-
-    def predict(self, x_predict) -> np.ndarray:
-        """Returns predictions for a given dataset.
+    def predict(self, X):
+        """
+        Produces predictions for the given dataset.
 
         Parameters
         ----------
-        x_predict : pd.DataFrame
-            Dataframe to perform predictions for. Should follow the same structure
-            as the dataset on which the original model was trained.
-
-        Returns
-        -------
-        np.ndarray
-            Array containing predictions.
-
+        X : pd.DataFrame
+            Dataframe to produce predictions for.
         """
         raise NotImplementedError()
 
@@ -96,104 +79,57 @@ class ModelFit:
         joblib.dump(self, file_path)
 
 
-class SklearnModelFit(ModelFit):
-    """ModelFit class for scikit-learn models.
-
-    ModelFit class representing a trained scikit-learn model. Can be used to wrap
-    any type of model that follows the scikit-learn fit/predict interface.
-
-    Parameters
-    ----------
-    model
-        A trained scikit-learn model.
-
-    """
-
-    def __init__(self, model):
-        self._model = model
-
-    def predict(self, x_predict):
-        return self._model.predict(x_predict)
+class NotFitError(Exception):
+    """Exception indicating that the corresponding model has not been fit."""
 
 
-class TitanicRfModel(Model):
+class TitanicModel(Model):
     """A RandomForest-based model for predicting survival in the Titanic dataset."""
 
-    # TODO: Make model more configurable with parameters in the constructor.
+    # TODO: Implement Titanic model in sklearn (preferably as a sklearn Pipeline).
+    #   See https://bit.ly/2UTUaoe for more details on Pipelines.
+    #   Tip: use the sklearn Column transformer to transform pandas DataFrames.
 
-    def fit(self, x_train, y_train):
-        # Build classifier pipeline.
-        pipeline = self._build_pipeline()
+    def __init__(self, n_trees=200):
+        super().__init__()
+        self._n_trees = n_trees
+        self._estimator = None
 
-        # Choose some parameter combinations to try
-        parameters = {
-            "rf__n_estimators": [4, 6, 9],
-            # "rf__max_features": ["log2", "sqrt", "auto"],
-            # "rf__criterion": ["entropy", "gini"],
-            # "rf__max_depth": [2, 3, 5, 10],
-            # "rf__min_samples_split": [2, 3, 5],
-            # "rf__min_samples_leaf": [1, 5, 8],
-        }
-
-        # Type of scoring used to compare parameter combinations
-        acc_scorer = metrics.make_scorer(metrics.accuracy_score)
-
-        # Run the grid search
-        grid_obj = GridSearchCV(pipeline, parameters, scoring=acc_scorer, cv=5)
-        grid_obj = grid_obj.fit(x_train, y_train)
-
-        # Set the clf to the best combination of parameters
-        clf = grid_obj.best_estimator_
-
-        # Fit the best algorithm to the data.
-        clf.fit(x_train, y_train)
-
-        return SklearnModelFit(model=clf)
+    def fit(self, X, y):
+        self._estimator = self._build_pipeline()
+        self._estimator.fit(X, y=y)
 
     def _build_pipeline(self):
-        """Helper method for building the model pipeline."""
-
-        return Pipeline(
-            steps=[
-                # Bin fares/ages into numeric categories.
+        preprocessor = ColumnTransformer(
+            transformers=[
                 (
-                    "bin_fares_ages",
-                    features.BinTransformer(
-                        bins={
-                            "Fare": [-1, 0, 8, 15, 31, 1000],
-                            "Age": [-1, 0, 5, 12, 18, 25, 35, 60, 120],
-                        },
-                        fill_values={"Fare": -0.5, "Age": -0.5},
-                    ),
+                    "passenger_class",
+                    SimpleImputer(strategy="most_frequent"),
+                    ["Pclass"],
                 ),
-                # Simplify cabin features into categories.
-                ("simplify_cabins", features.CabinTransformer()),
-                # Encode sex/cabin into numeric columns.
                 (
-                    "ordinal_encoder",
-                    features.OrdinalEncoder(
-                        categories={
-                            "Sex": ["male", "female"],
-                            "Cabin": ["N", "C", "E", "G", "D", "A", "B", "F", "T"],
-                        }
-                    ),
-                ),
-                # Final column selection.
-                (
-                    "select_features",
-                    features.SelectColumnTransformer(
-                        columns=[
-                            "Pclass",
-                            "Sex",
-                            "Age",
-                            "SibSp",
-                            "Parch",
-                            "Fare",
-                            "Cabin",
+                    "sex",
+                    Pipeline(
+                        steps=[
+                            ("impute", SimpleImputer(strategy="most_frequent")),
+                            ("encode", OneHotEncoder(drop="first")),
                         ]
                     ),
+                    ["Sex"],
                 ),
-                # Use a RandomForest classifier.
-                ("rf", RandomForestClassifier()),
             ]
         )
+
+        pipeline = Pipeline(
+            steps=[
+                ("preprocessing", preprocessor),
+                ("model", RandomForestClassifier(n_estimators=self._n_trees)),
+            ]
+        )
+
+        return pipeline
+
+    def predict(self, X):
+        if self._estimator is None:
+            raise NotFitError("Model has not yet been fit")
+        return self._estimator.predict(X)

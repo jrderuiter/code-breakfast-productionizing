@@ -2,7 +2,7 @@
 
 """Classes for creating and persisting (fitted) ML models."""
 
-from sklearn.externals import joblib
+import joblib
 
 
 class Model:
@@ -14,49 +14,33 @@ class Model:
     a read-only model fit that can be used to perform predictions and can be persisted.
     """
 
-    def fit(self, x_train, y_train) -> "ModelFit":
-        """Fits model on given dataset.
+    def fit(self, X, y):
+        """
+        Fits model on given dataset.
 
         Parameters
         ----------
-        x_train : pd.Dataframe
+        X : pd.Dataframe
             Dataframe containing training data (features only, no response).
-        y_train : Union[pd.Series, np.ndarray]
+        y : Union[pd.Series, np.ndarray]
             Pandas series (or numpy array) containing the response values for the
             given training dataset.
 
         Returns
         -------
-        ModelFit
-            A trained model instance.
-
+        Model
+            Returns the model itself, after fitting.
         """
-        raise NotImplementedError()
+        return self
 
-
-class ModelFit:
-    """Basic class representing a trained model (a model fit).
-
-    Model fits are in principle read-only and should not be modified after training.
-    As such, instances represent trained 'snapshots' of the model that can be persisted
-    to disk and loaded as needed for performing predictions. Optionally, model fits
-    can store extra metadata/parameters to indicate how/when the model was trained.
-    """
-
-    def predict(self, x_predict):
-        """Returns predictions for a given dataset.
+    def predict(self, X):
+        """
+        Produces predictions for the given dataset.
 
         Parameters
         ----------
-        x_predict : pd.DataFrame
-            Dataframe to perform predictions for. Should follow the same structure
-            as the dataset on which the original model was trained.
-
-        Returns
-        -------
-        np.ndarray
-            Array containing predictions.
-
+        X : pd.DataFrame
+            Dataframe to produce predictions for.
         """
         raise NotImplementedError()
 
@@ -89,21 +73,17 @@ class ModelFit:
         joblib.dump(self, file_path)
 
 
-class SklearnModelFit(ModelFit):
-    """ModelFit class for scikit-learn models.
+class TitanicModel(Model):
+    """A RandomForest-based model for predicting survival in the Titanic dataset."""
 
-    ModelFit class representing a trained scikit-learn model. Can be used to wrap
-    any type of model that follows the scikit-learn fit/predict interface.
+    # TODO: Implement Titanic model in sklearn (preferably as a sklearn Pipeline).
+    #   See https://bit.ly/2UTUaoe for more details on Pipelines.
+    #   Tip: use the sklearn Column transformer to transform pandas DataFrames.
 
-    Parameters
-    ----------
-    model
-        A trained scikit-learn model.
+    def fit(self, X, y):
+        # TODO: Implement fit.
+        raise NotImplementedError()
 
-    """
-
-    def __init__(self, model):
-        self._model = model
-
-    def predict(self, x_predict):
-        return self._model.predict(x_predict)
+    def predict(self, X):
+        # TODO: Implement predict.
+        raise NotImplementedError()

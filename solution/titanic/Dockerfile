@@ -6,4 +6,6 @@ ADD . /app
 RUN pip install /app
 
 EXPOSE 5000
-CMD ["titanic", "serve", "--host", "0.0.0.0", "/model/model.pkl"]
+
+ENTRYPOINT ["titanic"]
+CMD ["serve", "--host", "0.0.0.0", "/model/model.pkl"]

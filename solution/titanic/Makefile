@@ -1,4 +1,5 @@
-.PHONY: clean clean-test clean-pyc clean-build docs help
+.PHONY: clean clean-test clean-pyc clean-build clean-docs docs help
+.PHONY: docker-build docker-serve
 .DEFAULT_GOAL := help
 
 define BROWSER_PYSCRIPT
@@ -29,7 +30,7 @@ BROWSER := python -c "$$BROWSER_PYSCRIPT"
 help:
 	@python -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
 
-clean: clean-build clean-pyc clean-test ## remove all build, test, coverage and Python artifacts
+clean: clean-build clean-pyc clean-test clean-docs ## remove all build, test, coverage and Python artifacts
 
 clean-build: ## remove build artifacts
 	rm -fr build/
@@ -50,14 +51,14 @@ clean-test: ## remove test and coverage artifacts
 	rm -fr htmlcov/
 	rm -fr .pytest_cache
 
-lint: ## check style with flake8
-	flake8 --max-line-length=100 titanic tests
+clean-docs: ## remove built docs
+	rm -rf docs/_build
+
+lint: ## check style with pylint
+	pylint titanic
 
 test: ## run tests quickly with the default Python
-	py.test
-
-test-all: ## run tests on every Python version with tox
-	tox
+	py.test tests
 
 coverage: ## check code coverage quickly with the default Python
 	coverage run --source titanic -m pytest
@@ -86,3 +87,9 @@ dist: clean ## builds source and wheel package
 
 install: clean ## install the package to the active Python's site-packages
 	python setup.py install
+
+docker-build:
+	docker build -t titanic-model .
+
+docker-serve:
+	docker run -v `pwd`:/model -p 5000:5000 titanic-model serve --host 0.0.0.0 /model/model.pkl

@@ -5,7 +5,7 @@ import io
 import pandas as pd
 from flask import Flask, Response, request
 
-from titanic.model import ModelFit
+from titanic.model import Model
 
 
 class Scorer(Flask):
@@ -14,11 +14,10 @@ class Scorer(Flask):
     def __init__(self, *args, model_path, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.logger.info("Loading model from %s", model_path)
-        self._model = ModelFit.load(model_path)
+        self._model = Model.load(model_path)
 
-        self.add_url_rule("/predict", view_func=self.predict)
         self.add_url_rule("/ping", view_func=self.ping)
+        self.add_url_rule("/predict", view_func=self.predict)
 
     def ping(self):
         """Heartbeat endpoint."""
@@ -32,12 +31,11 @@ class Scorer(Flask):
     def predict(self):
         """Predict endpoint, which produces predictions for a given dataset."""
 
-        x_predict = pd.read_csv(io.BytesIO(request.data))
-        self.logger.info("Loaded %d rows for prediction", x_predict.shape[0])
+        data = pd.read_csv(io.BytesIO(request.data))
 
-        y_hat = self._model.predict(x_predict)
-        y_hat_df = pd.DataFrame({"predictions": y_hat})
+        y_pred = self._model.predict(data)
+        y_pred_df = pd.DataFrame({"prediction": y_pred})
 
         return Response(
-            y_hat_df.to_csv(None, header=True, index=False), content_type="text/csv"
+            y_pred_df.to_csv(None, header=True, index=False), content_type="text/csv"
         )
