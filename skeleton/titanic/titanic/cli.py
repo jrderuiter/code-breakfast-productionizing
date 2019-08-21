@@ -37,7 +37,7 @@ def fit(dataset_path, output_path, label_col):
 @click.argument("dataset_path")
 @click.option("--output_path", default="predictions.csv")
 def predict(model_path, dataset_path, output_path):
-    """Fits the model on a given dataset."""
+    """Produces predictions for a given dataset."""
 
     dataset = pd.read_csv(dataset_path)
 

@@ -28,8 +28,10 @@ def fit(dataset_path, output_path, label_col):
     x_train = dataset.drop([label_col], axis=1)
     y_train = dataset[label_col]
 
-    model_fit = TitanicModel().fit(x_train, y_train)
-    model_fit.save(output_path)
+    model = TitanicModel()
+    model.fit(x_train, y_train)
+
+    model.save(output_path)
 
 
 @cli.command()
@@ -37,7 +39,7 @@ def fit(dataset_path, output_path, label_col):
 @click.argument("dataset_path")
 @click.option("--output_path", default="predictions.csv")
 def predict(model_path, dataset_path, output_path):
-    """Fits the model on a given dataset."""
+    """Produces predictions for a given dataset."""
 
     dataset = pd.read_csv(dataset_path)
 

@@ -86,10 +86,6 @@ class NotFitError(Exception):
 class TitanicModel(Model):
     """A RandomForest-based model for predicting survival in the Titanic dataset."""
 
-    # TODO: Implement Titanic model in sklearn (preferably as a sklearn Pipeline).
-    #   See https://bit.ly/2UTUaoe for more details on Pipelines.
-    #   Tip: use the sklearn Column transformer to transform pandas DataFrames.
-
     def __init__(self, n_trees=200):
         super().__init__()
         self._n_trees = n_trees
@@ -97,7 +93,7 @@ class TitanicModel(Model):
 
     def fit(self, X, y):
         self._estimator = self._build_pipeline()
-        self._estimator.fit(X, y=y)
+        self._estimator.fit(X[["Pclass", "Sex"]], y=y)
 
     def _build_pipeline(self):
         preprocessor = ColumnTransformer(
@@ -117,7 +113,8 @@ class TitanicModel(Model):
                     ),
                     ["Sex"],
                 ),
-            ]
+            ],
+            remainder="drop"
         )
 
         pipeline = Pipeline(
@@ -132,4 +129,4 @@ class TitanicModel(Model):
     def predict(self, X):
         if self._estimator is None:
             raise NotFitError("Model has not yet been fit")
-        return self._estimator.predict(X)
+        return self._estimator.predict(X[["Pclass", "Sex"]])

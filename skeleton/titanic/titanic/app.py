@@ -31,7 +31,7 @@ class Scorer(Flask):
     def predict(self):
         """Predict endpoint, which produces predictions for a given dataset."""
 
-        data = pd.read_csv(io.BytesIO(request.data))
+        data = pd.read_csv(io.BytesIO(request.get_data()))
 
         # TODO: Implement model predictions.
         y_pred = [1, 1, 1, 1]
