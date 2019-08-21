@@ -3,18 +3,18 @@
 The goal of this hackathon is to illustrate the process of converting a predictive
 machine learning model from a proof-of-concept notebook into a Python package that
 can (more easily) be deployed into production. As the hackathon does not focus on
-developing the actual model, we will use a 'pre-made' model from Kaggle titanic
+developing the actual model, we will use an adapted model from the Kaggle titanic
 challenge https://www.kaggle.com/c/titanic, in which predictive models are trained
 to predict the chances of a passengers survival based on their details.
 
-In summary, the overall goals are to:
+In summary, the overall goals of this Hackathon are to:
 
 - Determine the basic building blocks of the titanic model
-- Implement these blocks in a Python package, following best practices
+- Implement these blocks in a Python package (including tests + documentation)
 - Wrap the model in a REST API using Flask
 - Containerize the application using Docker (optional)
 
-## Step 1: run the existing notebook
+## Step 1: Run the existing notebook
 
 First, to see what the existing model does, we will start by running the existing
 notebook.
@@ -27,52 +27,56 @@ notebook.
     - Which feature engineering steps are involved?
     - What model is used? With which parameters?
 
-## Step 2: create a basic Python package
-
-In the rest of the hackathon, we will work on developing a Python package. To
-experiment, with the basic setup of a Python package, we will first create a
-bare bones package using a cookiecutter template.
-
-- Create an empty Python package using the cookiecutter template at:
-https://github.com/audreyr/cookiecutter-pypackage.
-- Create an empty Python package and install the package (including its dependencies)
-  into a clean Python environment.
-- Inspect the files that were created by the template.
-- Try editing the docs and playing with the different Makefile commands.
-
-## Step 3: create a titanic package using the provided skeleton.
+## Step 2: Create a titanic package using the provided skeleton.
 
 In the `skeleton` folder, we have provided an initial setup for a `titanic` package
 that we can use for productionizing the model. We will work on expanding this skeleton
 into the fully fledged solution by implementing the model in a scikit-learn pipeline
 that can be persisted and loaded to/from disk.
 
-- Expand `features.py` by adding the transformer classes needed for implementing
-  the different feature engineering steps of the notebook. Check the scikit-learn
-  documentation for existing transformers that you may be able to use before
-  implementing your own.
-- Add documentation (docstrings) to the added classes. Optional: add basic usage
-  examples to `usage.rst` in the Sphinx documentation.
-- Implement several unit tests for the added transformers to check if they function as
-  expected. Try to use fixtures to share example datasets between tests.
-- Implement an additional `Model` class (see `models.py` for more details) that
-  implements your model using a scikit-learn pipeline.
+- Install the package + its development dependencies into your virtualenv using
+  `pip install .[dev]` (run from the titanic package directory) so that you can start
+  developing the package.
+- An initial setup for the model is provided in `titanic/model.py` by the `TitanicModel`
+  class. Expand this class by adding implementations for the fit/predict methods.
+- *Optional* - Try running the supplied unit tests using `make tests` to test if your
+  implementation passes the supplied (very basic) unit tests.
+- *Optional* - Add documentation (docstrings) to the `TitanicModel` class. You can
+  generate HTML documentation with Sphinx using the `make docs` command.
+
+## Step 3: Try fitting a model using the provided CLI commands.
+
+We have provided several command-line commands for fitting your model and saving it
+to a serialized file, which we can load (and later expose in an API) for producing
+predictions.
+
+- Train a model on our train dataset using `titanic fit data/train.csv`. This should
+  create a file called `model.pkl` containing your serialized model.
+- Try producing predictions using this serialized model using the command
+  `titanic predict model.pkl data/test.csv`. This should produce a file called
+  `predictions.csv` containing your predictions.
 
 ## Step 4: wrap the model in a API using Flask
 
 Next, we will wrap our model in a Flask app so that we can serve predictions over
 a web API.
 
-- Extend the basic (class-based) Flask app implementation in `app.py` to implement
-  a predict endpoint that takes CSV data from a request and returns the corresponding
-  predictions.
-- To make fitting/running the model easier, implement the `fit` and `serve` commands
-  in `cli.py`. The `fit` command should fit and persist a (fitted) model. The `serve`
-  command should load a persisted model and serve it using the Flask application.
-- Optional: implement a `fit` endpoint that allows re-training of the model using
+- Try starting the skeleton Flask application using the `titanic serve model.pkl`
+  command. You can test the application by opening `http://localhost:5000/ping`
+  in your browser. This should display the text `pong` if everything is working
+  correctly.
+- Extend the basic (class-based) Flask app implementation in `titanic/app.py` to
+  implement a `predict` endpoint that takes CSV data from a request and passes it to
+  your model. Note that this requires you to load your serialized model and expose
+  it in the Scorer class.
+- Try sending a dataset to the `predict` endpoint (using a POST request) to see if
+  your implementation works. This request should include your prediction dataset as
+  data in the request body. (*Tip: useful tools for sending requests are the Postman
+  application or the Python library requests. Ask for help if you need more details.*)
+- *Optional*: implement a `fit` endpoint that allows re-training of the model using
   a data set passed via a request.
 
-## Step 5: wrap the package in a docker container
+## Step 5: Wrap the package in a docker container
 
 Finally, to make running/deploying our package easier, we want to create a docker
 image containing our titanic package.
