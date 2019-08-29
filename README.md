@@ -39,6 +39,9 @@ that can be persisted and loaded to/from disk.
   developing the package.
 - An initial setup for the model is provided in `titanic/model.py` by the `TitanicModel`
   class. Expand this class by adding implementations for the fit/predict methods.
+- *Optional* - Run pylint over your code using `make lint` to see how well your code
+  fits the pylint style. Note that you can modify the rules used by pylint by creating
+  a pylintrc configuration file (using `pylint --generate-rcfile > pylintrc`).
 - *Optional* - Try running the supplied unit tests using `make tests` to test if your
   implementation passes the supplied (very basic) unit tests.
 - *Optional* - Add documentation (docstrings) to the `TitanicModel` class. You can
