@@ -13,7 +13,12 @@ from .model import Model, TitanicModel
 @click.group()
 @click.version_option()
 def cli():
-    pass
+    """
+    Command line interface for the titanic model.
+
+    Provides commands for fitting models and producing predictions, as well as
+    for exposing models in a Flask-based REST API.
+    """
 
 
 @cli.command()
