@@ -1,5 +1,5 @@
 .PHONY: clean clean-test clean-pyc clean-build clean-docs docs help
-.PHONY: docker-build docker-serve
+.PHONY: docker-build docker-serve docker-train
 .DEFAULT_GOAL := help
 
 define BROWSER_PYSCRIPT
@@ -88,8 +88,12 @@ dist: clean ## builds source and wheel package
 install: clean ## install the package to the active Python's site-packages
 	python setup.py install
 
-docker-build:
+docker-build: ## build a docker container for the package
 	docker build -t titanic-model .
 
-docker-serve:
-	docker run -v `pwd`:/model -p 5000:5000 titanic-model serve --host 0.0.0.0 /model/model.pkl
+docker-train: ## train a model insider docker
+	docker run -v `pwd`/model:/model -v `pwd`/../../data:/data \
+		titanic-model fit --output_path /model/model.pkl /data/train.csv
+
+docker-serve: ## serve a trained model from inside docker
+	docker run -v `pwd`/model:/model -p 5000:5000 titanic-model serve --host 0.0.0.0 /model/model.pkl

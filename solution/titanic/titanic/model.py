@@ -94,6 +94,7 @@ class TitanicModel(Model):
     def fit(self, X, y):
         self._estimator = self._build_pipeline()
         self._estimator.fit(X[["Pclass", "Sex"]], y=y)
+        return self
 
     def _build_pipeline(self):
         preprocessor = ColumnTransformer(
