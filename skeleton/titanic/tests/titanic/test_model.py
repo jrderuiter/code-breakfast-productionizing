@@ -16,7 +16,7 @@ class TestTitanicModel:
     def example_dataset(self):
         """Example dataset."""
         X = pd.DataFrame({
-            "PClass": [1, 2, 2, 3, 1, 2],
+            "Pclass": [1, 2, 2, 3, 1, 2],
             "Sex": ["male"] * 3 + ["female"] * 3,
         })
         y = pd.Series([0, 0, 1, 1, 1, 1])
@@ -30,7 +30,8 @@ class TestTitanicModel:
         model = TitanicModel()
         model.fit(X, y)
 
-        assert len(y_pred) > 0
+        # pylint: disable=protected-access
+        assert model._estimator is not None
 
     def test_predict(self, example_dataset):
         """Tests predicting with the model."""
