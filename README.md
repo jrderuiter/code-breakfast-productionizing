@@ -1,5 +1,7 @@
 # Hackathon: productionizing predictive models
 
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/jrderuiter/code-breakfast-productionizing)
+
 The goal of this hackathon is to illustrate the process of converting a predictive
 machine learning model from a proof-of-concept notebook into a Python package that
 can (more easily) be deployed into production. As the hackathon does not focus on
