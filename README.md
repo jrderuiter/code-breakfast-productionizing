@@ -1,6 +1,6 @@
 # Hackathon: productionizing predictive models
 
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/jrderuiter/code-breakfast-productionizing)
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/godatadriven/code-breakfast-productionizing)
 
 The goal of this hackathon is to illustrate the process of converting a predictive
 machine learning model from a proof-of-concept notebook into a Python package that
@@ -44,7 +44,7 @@ notebook.
     - What model is used? With which parameters?
 
 Small tip: creating a clean environment with conda is as easy as `conda env create -f environment.yml` from within the notebook folder.
-Next, activate your new environment. And run `jupyter notebook`. That should open up a new browser window and allow you to open the notebook (titanic-model.ipynb).
+Next, activate your new environment and run `jupyter notebook`. That should open up a new browser window and allow you to open the notebook (titanic-model.ipynb).
 
 
 ## Step 2: Create a titanic package using the provided skeleton.
