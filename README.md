@@ -16,6 +16,20 @@ In summary, the overall goals of this Hackathon are to:
 - Wrap the model in a REST API using Flask
 - Containerize the application using Docker (optional)
 
+## Step 0: Gettting your machine ready to be able to do the Hackaton
+
+This is an optional step, but we recommend using `conda` for this Hackaton.
+There are two options to install `conda`, either install
+
+- Anaconda, https://www.anaconda.com/distribution/#download-section
+- Miniconda, https://docs.conda.io/en/latest/miniconda.html
+
+Installing Anaconda is a bit easier, and we would recommend it for first time Python users.
+You can verify if conda is installed correctly, by opening a new terminal (or command prompt) and running `conda --version`.
+That should print something similar to `conda 4.5.8`.
+
+After installing `conda` you need to either clone or download this repo using the button (green) on the right hand side.
+
 ## Step 1: Run the existing notebook
 
 First, to see what the existing model does, we will start by running the existing
@@ -28,6 +42,10 @@ notebook.
 - Can you determine the key steps involved in training the model?
     - Which feature engineering steps are involved?
     - What model is used? With which parameters?
+
+Small tip: creating a clean environment with conda is as easy as `conda env create -f environment.yml` from within the notebook folder.
+Next, activate your new environment. And run `jupyter notebook`. That should open up a new browser window and allow you to open the notebook (titanic-model.ipynb).
+
 
 ## Step 2: Create a titanic package using the provided skeleton.
 
